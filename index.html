@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lista de Tarefas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <div class="card">
+
+    <!-- Cabeçalho -->
+    <header>
+      <p class="label">Organização pessoal</p>
+      <h1>Lista de<br>Tarefas</h1>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-num" id="count-total">0</span>
+          <span class="stat-lbl">total</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <span class="stat-num" id="count-done">0</span>
+          <span class="stat-lbl">concluídas</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <span class="stat-num" id="count-pending">0</span>
+          <span class="stat-lbl">pendentes</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Input único com toggle de rotina -->
+    <div class="input-area">
+      <div class="input-row">
+        <input type="text" id="task-input" placeholder="Adicionar nova tarefa…" maxlength="120"/>
+        <button class="btn-add" id="add-btn" title="Adicionar">+</button>
+      </div>
+      <div class="routine-toggle-row">
+        <label class="toggle-label" id="toggle-label">
+          <div class="toggle-box" id="toggle-box"></div>
+          Adicionar à Rotina Diária
+        </label>
+        <span class="toggle-hint" id="routine-hint">🔁 Rotina</span>
+      </div>
+    </div>
+
+    <!-- Rotina Diária -->
+    <section class="routine-section">
+      <div class="section-header" id="routine-toggle">
+        <div class="section-title">
+          <span class="section-icon">🔁</span>
+          <span>Rotina Diária</span>
+        </div>
+        <div class="routine-meta">
+          <span class="routine-progress" id="routine-progress">0/0</span>
+          <span class="chevron" id="routine-chevron">▾</span>
+        </div>
+      </div>
+
+      <div class="routine-body" id="routine-body">
+        <p class="routine-date" id="routine-date"></p>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+        <ul id="routine-list"></ul>
+        <div class="empty" id="routine-empty">
+          <div class="empty-icon">🔁</div>
+          <p>Nenhuma rotina cadastrada.<br>Marque a caixinha acima para adicionar!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tarefas do Dia -->
+    <div class="section-header static-header">
+      <div class="section-title">
+        <span class="section-icon">📌</span>
+        <span>Tarefas do Dia</span>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todas</button>
+      <button class="filter-btn" data-filter="pending">Pendentes</button>
+      <button class="filter-btn" data-filter="done">Concluídas</button>
+    </div>
+
+    <!-- Lista -->
+    <ul id="task-list"></ul>
+
+    <!-- Estado vazio -->
+    <div class="empty" id="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>Nenhuma tarefa por aqui.<br>Adicione uma acima!</p>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="footer">
+      <span id="footer-info">Salvo automaticamente</span>
+      <button class="btn-clear" id="clear-done">Limpar concluídas</button>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
