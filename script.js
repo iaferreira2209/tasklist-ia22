@@ -1,9 +1,9 @@
 // ════════════════════════════════════════════════════
-//  CHAVES DE ARMAZENAMENTO
+//  CONEXÃO COM O BANCO DE DADOS (SUPABASE)
 // ════════════════════════════════════════════════════
-const TASK_KEY    = 'tasks_v1';
-const ROUTINE_KEY = 'routine_tasks_v1';
-const DATE_KEY    = 'routine_last_date';
+const supabaseUrl = 'https://rzcqmrhwazeruwlssnvf.supabase.co'; 
+const supabaseKey = 'COLE_SUA_CHAVE_PUBLISHABLE_AQUIsb_publishable_kBt893nBZFwij-VzHB5zAg_8d2pcEdR';
+const db = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ════════════════════════════════════════════════════
 //  ESTADO
@@ -15,39 +15,35 @@ let isRoutineMode = false;
 let routineOpen  = true;
 
 // ════════════════════════════════════════════════════
-//  HELPERS
+//  INICIALIZAÇÃO E BUSCA DOS DADOS
 // ════════════════════════════════════════════════════
-function todayString() {
-  return new Date().toISOString().slice(0, 10);
-}
+async function loadAll() {
+  // Busca tudo no banco de dados
+  const { data, error } = await db.from('tarefas').select('*');
+  
+  if (error) {
+    console.error("Erro ao buscar dados:", error);
+    return;
+  }
 
-// ════════════════════════════════════════════════════
-//  PERSISTÊNCIA (localStorage)
-// ════════════════════════════════════════════════════
-function saveTasks() {
-  localStorage.setItem(TASK_KEY, JSON.stringify(tasks));
-}
+  // Separa o que veio do banco para as nossas listas locais
+  tasks = data
+    .filter(t => t.tipo === 'avulsa')
+    .map(t => ({ id: t.id, text: t.texto, done: t.concluida }));
 
-function saveRoutine() {
-  localStorage.setItem(ROUTINE_KEY, JSON.stringify(routineTasks));
-}
+  routineTasks = data
+    .filter(t => t.tipo === 'rotina')
+    .map(t => ({ id: t.id, text: t.texto, done: t.concluida }));
 
-function loadAll() {
-  // Tarefas avulsas
-  try { tasks = JSON.parse(localStorage.getItem(TASK_KEY)) || []; }
-  catch { tasks = []; }
-
-  // Rotina
-  try { routineTasks = JSON.parse(localStorage.getItem(ROUTINE_KEY)) || []; }
-  catch { routineTasks = []; }
-
-  // Reseta "done" da rotina se o dia mudou
-  const lastDate = localStorage.getItem(DATE_KEY);
-  const today    = todayString();
-  if (lastDate !== today) {
+  // Lógica para desmarcar a rotina se o dia mudou (usando localStorage só pra data)
+  const lastDate = localStorage.getItem('routine_last_date');
+  const today    = new Date().toISOString().slice(0, 10);
+  
+  if (lastDate !== today && routineTasks.length > 0) {
     routineTasks.forEach(t => t.done = false);
-    localStorage.setItem(DATE_KEY, today);
-    saveRoutine();
+    localStorage.setItem('routine_last_date', today);
+    // Atualiza todas as rotinas para não concluídas no banco
+    await db.from('tarefas').update({ concluida: false }).eq('tipo', 'rotina');
   }
 
   render();
@@ -57,32 +53,51 @@ function loadAll() {
 // ════════════════════════════════════════════════════
 //  TAREFAS AVULSAS
 // ════════════════════════════════════════════════════
-function addTask(text) {
+async function addTask(text) {
   text = text.trim();
   if (!text) return;
-  tasks.push({ id: Date.now(), text, done: false });
-  saveTasks();
-  render();
-}
+  
+  // Salva no banco primeiro
+  const { data, error } = await db.from('tarefas')
+    .insert([{ texto: text, concluida: false, tipo: 'avulsa' }])
+    .select();
 
-function toggleTask(id) {
-  const t = tasks.find(t => t.id === id);
-  if (t) { t.done = !t.done; saveTasks(); render(); }
-}
-
-function deleteTask(id, liEl) {
-  liEl.classList.add('removing');
-  liEl.addEventListener('transitionend', () => {
-    tasks = tasks.filter(t => t.id !== id);
-    saveTasks();
+  if (!error && data) {
+    // Adiciona na tela usando o ID que o banco gerou
+    tasks.push({ id: data[0].id, text: data[0].texto, done: data[0].concluida });
     render();
+  }
+}
+
+async function toggleTask(id) {
+  const t = tasks.find(t => t.id === id);
+  if (t) { 
+    t.done = !t.done; 
+    render(); // Atualiza a tela rápido
+    // Atualiza no banco em segundo plano
+    await db.from('tarefas').update({ concluida: t.done }).eq('id', id);
+  }
+}
+
+async function deleteTask(id, liEl) {
+  liEl.classList.add('removing');
+  liEl.addEventListener('transitionend', async () => {
+    tasks = tasks.filter(t => t.id !== id);
+    render();
+    // Deleta do banco
+    await db.from('tarefas').delete().eq('id', id);
   }, { once: true });
 }
 
-function clearDone() {
+async function clearDone() {
+  const doneTasks = tasks.filter(t => t.done);
   tasks = tasks.filter(t => !t.done);
-  saveTasks();
   render();
+  
+  // Deleta todas as concluídas do banco
+  for (let t of doneTasks) {
+    await db.from('tarefas').delete().eq('id', t.id);
+  }
 }
 
 function render() {
@@ -123,32 +138,41 @@ function render() {
       list.appendChild(li);
     });
   }
-
   updateStats();
 }
 
 // ════════════════════════════════════════════════════
 //  ROTINA DIÁRIA
 // ════════════════════════════════════════════════════
-function addRoutineTask(text) {
+async function addRoutineTask(text) {
   text = text.trim();
   if (!text) return;
-  routineTasks.push({ id: Date.now(), text, done: false });
-  saveRoutine();
-  renderRoutine();
-}
+  
+  const { data, error } = await db.from('tarefas')
+    .insert([{ texto: text, concluida: false, tipo: 'rotina' }])
+    .select();
 
-function toggleRoutineTask(id) {
-  const t = routineTasks.find(t => t.id === id);
-  if (t) { t.done = !t.done; saveRoutine(); renderRoutine(); }
-}
-
-function deleteRoutineTask(id, liEl) {
-  liEl.classList.add('removing');
-  liEl.addEventListener('transitionend', () => {
-    routineTasks = routineTasks.filter(t => t.id !== id);
-    saveRoutine();
+  if (!error && data) {
+    routineTasks.push({ id: data[0].id, text: data[0].texto, done: data[0].concluida });
     renderRoutine();
+  }
+}
+
+async function toggleRoutineTask(id) {
+  const t = routineTasks.find(t => t.id === id);
+  if (t) { 
+    t.done = !t.done; 
+    renderRoutine();
+    await db.from('tarefas').update({ concluida: t.done }).eq('id', id);
+  }
+}
+
+async function deleteRoutineTask(id, liEl) {
+  liEl.classList.add('removing');
+  liEl.addEventListener('transitionend', async () => {
+    routineTasks = routineTasks.filter(t => t.id !== id);
+    renderRoutine();
+    await db.from('tarefas').delete().eq('id', id);
   }, { once: true });
 }
 
@@ -156,19 +180,16 @@ function renderRoutine() {
   const list  = document.getElementById('routine-list');
   const empty = document.getElementById('routine-empty');
 
-  // Data formatada
   const hoje = new Date();
   document.getElementById('routine-date').textContent =
     hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  // Barra de progresso
   const total = routineTasks.length;
   const done  = routineTasks.filter(t => t.done).length;
   const pct   = total === 0 ? 0 : Math.round((done / total) * 100);
   document.getElementById('progress-bar-fill').style.width = pct + '%';
   document.getElementById('routine-progress').textContent  = done + '/' + total;
 
-  // Lista
   list.innerHTML = '';
 
   if (routineTasks.length === 0) {
@@ -197,7 +218,6 @@ function renderRoutine() {
       list.appendChild(li);
     });
   }
-
   updateStats();
 }
 
@@ -214,11 +234,10 @@ function updateStats() {
 }
 
 // ════════════════════════════════════════════════════
-//  TOGGLE ROTINA (caixinha)
+//  TOGGLE ROTINA E EVENTOS
 // ════════════════════════════════════════════════════
 document.getElementById('toggle-label').addEventListener('click', () => {
   isRoutineMode = !isRoutineMode;
-
   const box   = document.getElementById('toggle-box');
   const hint  = document.getElementById('routine-hint');
   const input = document.getElementById('task-input');
@@ -235,19 +254,11 @@ document.getElementById('toggle-label').addEventListener('click', () => {
   }
 });
 
-// ════════════════════════════════════════════════════
-//  EVENTOS — INPUT ÚNICO
-// ════════════════════════════════════════════════════
 document.getElementById('add-btn').addEventListener('click', () => {
   const inp = document.getElementById('task-input');
   const text = inp.value;
-
-  if (isRoutineMode) {
-    addRoutineTask(text);
-  } else {
-    addTask(text);
-  }
-
+  if (isRoutineMode) addRoutineTask(text);
+  else addTask(text);
   inp.value = '';
   inp.focus();
 });
@@ -255,17 +266,11 @@ document.getElementById('add-btn').addEventListener('click', () => {
 document.getElementById('task-input').addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const text = e.target.value;
-  if (isRoutineMode) {
-    addRoutineTask(text);
-  } else {
-    addTask(text);
-  }
+  if (isRoutineMode) addRoutineTask(text);
+  else addTask(text);
   e.target.value = '';
 });
 
-// ════════════════════════════════════════════════════
-//  FILTROS
-// ════════════════════════════════════════════════════
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     filter = btn.dataset.filter;
@@ -277,9 +282,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 
 document.getElementById('clear-done').addEventListener('click', clearDone);
 
-// ════════════════════════════════════════════════════
-//  ACCORDION ROTINA
-// ════════════════════════════════════════════════════
 document.getElementById('routine-toggle').addEventListener('click', () => {
   routineOpen = !routineOpen;
   document.getElementById('routine-body').classList.toggle('collapsed', !routineOpen);
@@ -287,6 +289,6 @@ document.getElementById('routine-toggle').addEventListener('click', () => {
 });
 
 // ════════════════════════════════════════════════════
-//  INICIALIZAÇÃO
+//  INICIA O APLICATIVO LENDO DO BANCO
 // ════════════════════════════════════════════════════
 loadAll();
