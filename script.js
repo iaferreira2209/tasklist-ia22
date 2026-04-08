@@ -2,7 +2,7 @@
 //  CONEXÃO COM O BANCO DE DADOS (SUPABASE)
 // ════════════════════════════════════════════════════
 const supabaseUrl = 'https://rzcqmrhwazeruwlssnvf.supabase.co'; 
-const supabaseKey = 'COLE_SUA_CHAVE_PUBLISHABLE_AQUIsb_publishable_kBt893nBZFwij-VzHB5zAg_8d2pcEdR';
+const supabaseKey = 'sb_publishable_kBt893nBZFwij-VzHB5zAg_8d2pcEdR';
 const db = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ════════════════════════════════════════════════════
