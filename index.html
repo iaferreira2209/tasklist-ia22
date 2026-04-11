@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lista de Tarefas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <div class="card">
@@ -36,7 +40,7 @@
     <!-- Input único com toggle de rotina -->
     <div class="input-area">
       <div class="input-row">
-        <input type="text" id="task-input" placeholder="Adicionar nova tarefa…" maxlength="120"/>
+        <input type="text" id="task-input" placeholder="Adicionar nova tarefa…" maxlength="120" />
         <button class="btn-add" id="add-btn" title="Adicionar">+</button>
       </div>
       <div class="routine-toggle-row">
@@ -84,8 +88,7 @@
 
     <!-- Filtros -->
     <div class="filters">
-      <button class="filter-btn active" data-filter="all">Todas</button>
-      <button class="filter-btn" data-filter="pending">Pendentes</button>
+      <button class="filter-btn active" data-filter="pending">Pendentes</button>
       <button class="filter-btn" data-filter="done">Concluídas</button>
     </div>
 
@@ -109,4 +112,5 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
+
 </html>
