@@ -60,6 +60,7 @@
           <span class="chevron" id="routine-chevron">▾</span>
         </div>
       </div>
+
       <div class="routine-body" id="routine-body">
         <p class="routine-date" id="routine-date"></p>
         <div class="progress-bar-wrap">
@@ -81,14 +82,11 @@
       </div>
     </div>
 
-    <!-- Abas -->
-    <div class="tabs">
-      <button class="tab-btn active" data-filter="pending">
-        Pendentes <span class="tab-count" id="tab-count-pending">0</span>
-      </button>
-      <button class="tab-btn tab-done" data-filter="done">
-        Concluídas <span class="tab-count" id="tab-count-done">0</span>
-      </button>
+    <!-- Filtros -->
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todas</button>
+      <button class="filter-btn" data-filter="pending">Pendentes</button>
+      <button class="filter-btn" data-filter="done">Concluídas</button>
     </div>
 
     <!-- Lista -->
@@ -96,18 +94,19 @@
 
     <!-- Estado vazio -->
     <div class="empty" id="empty-state">
-      <div class="empty-icon" id="empty-icon">📋</div>
-      <p id="empty-text">Nenhuma tarefa pendente.<br>Adicione uma acima!</p>
+      <div class="empty-icon">📋</div>
+      <p>Nenhuma tarefa por aqui.<br>Adicione uma acima!</p>
     </div>
 
     <!-- Rodapé -->
     <div class="footer">
-      <span id="footer-info">Salvo automaticamente</span>
+      <span id="footer-info">Salvo na nuvem</span>
       <button class="btn-clear" id="clear-done">Limpar concluídas</button>
     </div>
 
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
