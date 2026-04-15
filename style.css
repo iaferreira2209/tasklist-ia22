@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 48px 16px 80px;
+  padding: 20px 16px 80px;
 }
 
 body::before {
@@ -519,3 +519,37 @@ header h1 {
 }
 
 .btn-clear:hover { color: var(--accent); }
+
+/* ══════════════════════════════════════════════════ */
+/*  NAVEGAÇÃO ENTRE TELAS                             */
+/* ══════════════════════════════════════════════════ */
+.app-nav {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 5px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 22px;
+  border-radius: 50px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: all .2s;
+}
+
+.nav-link:hover  { background: var(--bg); color: var(--ink); }
+.nav-link.active { background: var(--ink); color: #fff; }
+.nav-icon        { font-size: 15px; }
