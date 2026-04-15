@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Controle de Gastos</title>
-  <meta name="description" content="Controle pessoal de entradas e saídas financeiras com motivo e forma de pagamento." />
+  <meta name="description"
+    content="Controle pessoal de entradas e saídas financeiras com motivo e forma de pagamento." />
   <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet" />
@@ -25,6 +26,36 @@
       <span>Gastos</span>
     </a>
   </nav>
+
+  <!-- PIN Overlay -->
+  <div class="pin-overlay" id="pin-overlay">
+    <div class="pin-card">
+      <div class="pin-lock">🔒</div>
+      <h2 class="pin-title">Acesso Restrito</h2>
+      <p class="pin-subtitle">Digite o PIN para continuar</p>
+      <div class="pin-dots" id="pin-dots">
+        <span class="pin-dot" id="dot-0"></span>
+        <span class="pin-dot" id="dot-1"></span>
+        <span class="pin-dot" id="dot-2"></span>
+        <span class="pin-dot" id="dot-3"></span>
+      </div>
+      <div class="pin-grid">
+        <button class="pin-num" data-n="1">1</button>
+        <button class="pin-num" data-n="2">2</button>
+        <button class="pin-num" data-n="3">3</button>
+        <button class="pin-num" data-n="4">4</button>
+        <button class="pin-num" data-n="5">5</button>
+        <button class="pin-num" data-n="6">6</button>
+        <button class="pin-num" data-n="7">7</button>
+        <button class="pin-num" data-n="8">8</button>
+        <button class="pin-num" data-n="9">9</button>
+        <button class="pin-num pin-clear" id="pin-clear-btn">⌫</button>
+        <button class="pin-num" data-n="0">0</button>
+        <div></div>
+      </div>
+      <p class="pin-error" id="pin-error"></p>
+    </div>
+  </div>
 
   <div class="card">
 

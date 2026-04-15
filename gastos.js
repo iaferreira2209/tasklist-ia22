@@ -14,6 +14,82 @@ let pagtoAtual = 'dinheiro';
 let filtro     = 'todos';
 
 // ════════════════════════════════════════════════════
+//  AUTENTICAÇÃO POR PIN
+// ════════════════════════════════════════════════════
+const CORRECT_PIN = '0522';
+let pinDigits = [];
+
+function checkPinAccess() {
+  if (sessionStorage.getItem('gastos_auth') === 'true') {
+    document.getElementById('pin-overlay').classList.add('hidden');
+    loadGastos();
+  }
+  // caso contrário o overlay já aparece por padrão
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    dot.classList.toggle('filled', i < pinDigits.length);
+    dot.classList.remove('error');
+  }
+}
+
+function pinError() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`dot-${i}`).classList.add('error');
+  }
+  document.getElementById('pin-error').textContent = 'PIN incorreto. Tente novamente.';
+  setTimeout(() => {
+    pinDigits = [];
+    updatePinDots();
+    document.getElementById('pin-error').textContent = '';
+  }, 1000);
+}
+
+function submitPin() {
+  if (pinDigits.join('') === CORRECT_PIN) {
+    sessionStorage.setItem('gastos_auth', 'true');
+    const overlay = document.getElementById('pin-overlay');
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.classList.add('hidden'), 300);
+    loadGastos();
+  } else {
+    pinError();
+  }
+}
+
+// Clicks nos botões numéricos
+document.querySelectorAll('.pin-num[data-n]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (pinDigits.length >= 4) return;
+    pinDigits.push(btn.dataset.n);
+    updatePinDots();
+    if (pinDigits.length === 4) setTimeout(submitPin, 150);
+  });
+});
+
+// Botão apagar
+document.getElementById('pin-clear-btn').addEventListener('click', () => {
+  pinDigits.pop();
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+});
+
+// Suporte ao teclado físico
+document.addEventListener('keydown', e => {
+  if (document.getElementById('pin-overlay').classList.contains('hidden')) return;
+  if (e.key >= '0' && e.key <= '9' && pinDigits.length < 4) {
+    pinDigits.push(e.key);
+    updatePinDots();
+    if (pinDigits.length === 4) setTimeout(submitPin, 150);
+  } else if (e.key === 'Backspace') {
+    pinDigits.pop();
+    updatePinDots();
+  }
+});
+
+// ════════════════════════════════════════════════════
 //  FORMATA VALOR PARA BRL
 // ════════════════════════════════════════════════════
 function formatBRL(value) {
@@ -289,6 +365,6 @@ document.getElementById('clear-all-btn').addEventListener('click', async () => {
 });
 
 // ════════════════════════════════════════════════════
-//  INICIA O APP
+//  INICIA O APP (verifica PIN primeiro)
 // ════════════════════════════════════════════════════
-loadGastos();
+checkPinAccess();

@@ -529,8 +529,139 @@ header h1 {
 /* ── Responsivo ── */
 @media (max-width: 480px) {
   .card { padding: 28px 20px 24px; }
-  .finance-stat { padding: 12px 10px; gap: 7px; }
-  .finance-num  { font-size: .88rem; }
+
+  /* Empilha os 3 blocos do resumo em coluna no mobile */
+  .finance-summary {
+    flex-direction: column;
+  }
+  .finance-divider {
+    width: 100%;
+    height: 1px;
+    flex-shrink: 0;
+  }
+  .finance-stat { padding: 12px 16px; }
+
   .pagamento-grid { grid-template-columns: repeat(2, 1fr); }
   header h1 { font-size: 1.85rem; }
+}
+
+/* ══════════════════════════════════════════════════ */
+/*  PIN OVERLAY                                      */
+/* ══════════════════════════════════════════════════ */
+.pin-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: opacity .3s;
+}
+
+.pin-overlay.hidden { display: none; }
+
+.pin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px 32px 32px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.pin-lock {
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+  animation: bounceLock .6s ease;
+}
+
+@keyframes bounceLock {
+  0%   { transform: scale(.7); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.pin-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.pin-subtitle {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 28px;
+}
+
+/* Pontinhos do PIN */
+.pin-dots {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.pin-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  transition: all .15s;
+}
+
+.pin-dot.filled {
+  background: var(--ink);
+  border-color: var(--ink);
+  transform: scale(1.15);
+}
+
+.pin-dot.error {
+  background: var(--expense);
+  border-color: var(--expense);
+  animation: shake .3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+}
+
+/* Grid numérico */
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.pin-num {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all .12s;
+  user-select: none;
+}
+
+.pin-num:hover  { background: var(--border); }
+.pin-num:active { transform: scale(.93); background: var(--border); }
+
+.pin-clear { font-size: 18px; color: var(--ink-soft); }
+
+.pin-error {
+  font-size: 13px;
+  color: var(--expense);
+  min-height: 18px;
 }
